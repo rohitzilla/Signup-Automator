@@ -4,7 +4,7 @@ Generates random user info and uses selenium to sign up on websites
 # How it works
 The program reads in from 2 files to get a list for first names and last names. Then, for each user, random info is generated, such as first name, last name, email, username, password in order to fill in sign up forms.
 
-The program then tries to use to selenium to find places to put in data based on key words such as "name", and "pass". After all possible data has been it will press enter and try to sign up.
+The program then uses selenium to find places to input data based on key words such as "name", and "pass". After all possible data has been it will press enter and try to sign up.
 
 # Requirements
 Selenium is required to run this program:
