@@ -12,9 +12,10 @@ import time
 import csv
 import calendar
 
-login_page = "https://profile.oracle.com/myprofile/account/create-account.jspx"
+login_page = "https://www.amazon.com/ap/register?_encoding=UTF8&openid.assoc_handle=usflex&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.mode=checkid_setup&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.ns.pape=http%3A%2F%2Fspecs.openid.net%2Fextensions%2Fpape%2F1.0&openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Fgp%2Fyourstore%2Fhome%3Fie%3DUTF8%26ref_%3Dnav_custrec_newcust"
 
 words = ["first", "last", "name,full", "mail", "user", "month", "day", "year", "age", "country", "state", "phone,number", "zip,post", "job,company", "pass"]
+wordpos = {}
 info = []
 attributes = ["id", "name", "placeholder", "text"]
 
@@ -76,6 +77,10 @@ def generateRandomInfo():
     global info
     info = [first, last, full, email, user, month, day, year, age, country, state, number, zip, job, pwd]
 
+    for i in range(len(words)):
+        word = words[i]
+        for a in word.split(","):
+            wordpos[a] = i
     writer.writerow(info)
 
 def attemptLogon():
@@ -94,22 +99,22 @@ def search(word, driver):
             if word in str(i.get(att)).lower() and not driver.find_element_by_name(i.get("name")).get_attribute("value"):
                 if att == "id" and not driver.find_element_by_name(i.get("name")).get_attribute("value"):
                     try:
-                        driver.find_element_by_id(i.get(att)).send_keys(
-                            info[words.index(word)])
-                        print(info[words.index(word)])
+                        driver.find_element_by_id(i.get(att)).send_keys(info[wordpos[word]])
+                        print(info[wordpos[word]])
                     except:
                         pass
                 elif att == "name" and not driver.find_element_by_name(i.get("name")).get_attribute("value"):
                     try:
                         driver.find_element_by_name(
-                            i.get(att)).send_keys(info[words.index(word)])
-                        print(info[words.index(word)])
+                            i.get(att)).send_keys(info[wordpos[word]])
+                        print(info[wordpos[word]])
                     except:
                         pass
                 elif att == "placeholder" and not driver.find_element_by_name(i.get("name")).get_attribute("value"):
                     try:
-                        driver.find_element_by_placeholder(i.get(att)).send_keys(info[words.index(word)])
-                        print(info[words.index(word)])
+                        driver.find_element_by_placeholder(
+                            i.get(att)).send_keys(info[wordpos[word]])
+                        print(info[wordpos[word]])
                     except:
                         pass
                 if word == words[-1]:
@@ -121,26 +126,24 @@ def search(word, driver):
             elif word in str(i.get(att)).lower() and i.name == 'select':
                 if att == "id" and not driver.find_element_by_name(i.get("name")).get_attribute("value"):
                     try:
-                        select = Select(driver.find_element_by_id(
-                            i.get(att)))
-                        select.select_by_visible_text(
-                                str(info[words.index(word)]))
+                        select = Select(driver.find_element_by_id(i.get(att)))
+                        select.select_by_visible_text(str(info[wordpos[word]]))
+                        print(info[wordpos[word]])
                     except:
                         pass
                 elif att == "name" and not driver.find_element_by_name(i.get("name")).get_attribute("value"):
                     try:
-                        select = Select(
-                            driver.find_element_by_name(i.get(att)))
-                        select.select_by_visible_text(str(info[words.index(word)]))
-                        print(info[words.index(word)])
+                        select = Select(driver.find_element_by_name(i.get(att)))
+                        select.select_by_visible_text(str(info[wordpos[word]]))
+                        print(info[wordpos[word]])
                     except:
                         pass
                 elif att == "placeholder" and not driver.find_element_by_name(i.get("name")).get_attribute("value"):
                     try:
                         select = Select(
                             driver.find_element_by_placeholder(i.get(att)))
-                        select.select_by_visible_text(str(info[words.index(word)]))
-                        print(info[words.index(word)])
+                        select.select_by_visible_text(str(info[wordpos[word]]))
+                        print(info[wordpos[word]])
                     except:
                         pass
                 if word == words[-1]:
