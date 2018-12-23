@@ -12,15 +12,17 @@ import time
 import csv
 import calendar
 
-login_page = "https://www.amazon.com/ap/register?_encoding=UTF8&openid.assoc_handle=usflex&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.mode=checkid_setup&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.ns.pape=http%3A%2F%2Fspecs.openid.net%2Fextensions%2Fpape%2F1.0&openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fwww.amazon.com%2Fgp%2Fyourstore%2Fhome%3Fie%3DUTF8%26ref_%3Dnav_custrec_newcust"
+login_page = "https://profile.oracle.com/myprofile/account/create-account.jspx"
 
-words = ["first", "last", "name,full", "mail", "user", "month", "day", "year", "age", "country", "state", "phone,number", "zip,post", "job,company", "pass"]
+words = ["first", "last", "name,full", "mail", "user", "month", "day", "year", "age", "country", "state", "city", "phone,number", "zip,post", "job,company", "pass"]
 wordpos = {}
 info = []
 attributes = ["id", "name", "placeholder", "text"]
 
 first_names = []
 last_names = []
+cities = set()
+states = set()
 
 file = open("users.csv", mode="w")
 
@@ -48,6 +50,19 @@ def readFirstNames():
         text = line.split(",")
         first_names.append(text[0])
 
+def readCitiesAndStates():
+    global cities
+    input = open("cities.csv", "r")
+    for line in input:
+        text = line.split(",")
+        if text[0] == "City":
+            continue
+        cities.add(text[0])
+        try:
+            states.add(text[2])
+        except:
+            pass
+
 def readLastNames():
     global last_names
     input = open("last_names.csv", "r")
@@ -70,12 +85,13 @@ def generateRandomInfo():
     year = random.randint(1970, 2001)
     age = 2018 - year
     country = "USA"
-    state = "Texas"
     job = "Computer"
     number = random.randint(1000000000, 9999999999)
+    state = random.choice(list(states))
+    city = random.choice(list(cities))
     zip = random.randint(10000, 99999)
     global info
-    info = [first, last, full, email, user, month, day, year, age, country, state, number, zip, job, pwd]
+    info = [first, last, full, email, user, month, day, year, age, country, state, city, number, zip, job, pwd]
 
     for i in range(len(words)):
         word = words[i]
@@ -157,8 +173,7 @@ def search(word, driver):
                 driver.find_element_by_name(i.get("name")).send_keys(Keys.ENTER)
             except:
                 pass
+
 readFirstNames()
 readLastNames()
-
-for i in range(1):
-    attemptLogon()
+readCitiesAndStates()
