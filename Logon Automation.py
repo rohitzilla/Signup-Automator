@@ -11,6 +11,7 @@ import random
 import time
 import csv
 import calendar
+import urllib
 
 login_page = "https://profile.oracle.com/myprofile/account/create-account.jspx"
 
@@ -28,20 +29,6 @@ file = open("users.csv", mode="w")
 
 writer = csv.writer(file, delimiter=",")
 writer.writerow(words)
-
-def simple_get(url):
-    try:
-        with closing(get(url, stream=True)) as resp:
-            if is_good_response(resp):
-                return resp.content
-            else:
-                return None
-    except RequestException as e:
-        return None
-
-def is_good_response(resp):
-    content_type = resp.headers['Content-Type'].lower()
-    return (content_type is not None and content_type.find('html') > -1)
 
 def readFirstNames():
     global first_names
@@ -108,7 +95,7 @@ def attemptLogon():
             search(a, driver)
 
 def search(word, driver):
-    html = BeautifulSoup(simple_get(login_page), 'html.parser')
+    html = BeautifulSoup(urllib.request.urlopen(login_page), 'html.parser')
 
     for i in html.findAll(['input', 'select']):
         for att in attributes:
