@@ -7,7 +7,7 @@ The program reads in from 2 files to get a list for first names and last names. 
 The program then uses selenium to find places to input data based on key words such as "name", and "pass". After all possible data has been it will press enter and try to sign up.
 
 # Requirements
-Selenium and BeautifulSopu are required to run this program:
+Selenium and BeautifulSoup are required to run this program:
 ```
 pip install selenium
 pip install BeautifulSoup
