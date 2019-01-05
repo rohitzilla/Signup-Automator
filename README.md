@@ -20,4 +20,4 @@ https://github.com/mozilla/geckodriver/releases
 
 # Example
 
-![Image Description](signup.png)
+![Image Description](image.png)
