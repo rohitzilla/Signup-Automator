@@ -3,22 +3,21 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.ui import Select
-from requests import get
-from requests.exceptions import RequestException
-from contextlib import closing
 from bs4 import BeautifulSoup
 import random
-import time
 import csv
 import calendar
 import urllib
 
-login_page = "https://profile.oracle.com/myprofile/account/create-account.jspx"
+login_page = "https://profile.oracle.com/myprofile/account/create-account.jspx" # change this to whatever page you want
 
-words = ["first", "last", "name,full", "mail", "user", "month", "day", "year", "age", "country", "state", "city", "address", "phone,number", "zip,post", "job,company", "pass"]
+words = ["first", "last","user", "name,full", "mail", "month", "day", "year", "age", "country", "state", "city", "address", "phone,number", "zip,post", "job,company", "pass"]
 wordpos = {}
 info = []
-attributes = ["id", "name", "placeholder", "text"]
+attributes = ["id", "name", "placeholder"]
+
+input_list = []
+select_list = []
 
 first_names = []
 last_names = []
@@ -29,6 +28,82 @@ file = open("users.csv", mode="w")
 
 writer = csv.writer(file, delimiter=",")
 writer.writerow(words)
+
+# return inputs to fill info into
+def getInputs(url):
+    html = BeautifulSoup(urllib.request.urlopen(login_page), 'html.parser')
+    inputs = html.findAll(['input', 'select'])
+    for input in inputs:
+        found = False
+        for att in attributes:
+            for word in words:
+                for a in word.split(","):
+                    if a in str(input.get(att)).lower() and not found:
+                        if input.name == "input" and input.type != "checkbox":
+                            input_list.append([att, input.get(att), words.index(word)])
+                        elif input.name == "select":
+                            select_list.append([att, input.get(att), words.index(word)])
+                        found = True
+
+def search(driver):
+    for i in range(len(select_list)):
+        list = select_list[i]
+        if list[0] == "id":
+            try:
+                select = Select(driver.find_element_by_id(list[1]))
+                select.select_by_visible_text(str(info[list[2]]))
+                print(info[list[2]])
+            except:
+                pass
+        elif list[0] == "name":
+            try:
+                select = Select(driver.find_element_by_name(list[1]))
+                select.select_by_visible_text(str(info[list[2]]))
+                print(info[list[2]])
+            except:
+                pass
+        elif list[0] == "placeholder":
+            try:
+                select = Select(driver.find_element_by_placeholder(list[1]))
+                select.select_by_visible_text(str(info[list[2]]))
+                print(info[list[2]])
+            except:
+                pass
+    for i in range(len(input_list)):
+        list = input_list[i]
+        if list[0] == "id":
+            try:
+                if "phone" in words[list[2]]:
+                    driver.find_element_by_id(list[1]).click()
+                driver.find_element_by_id(list[1]).send_keys(info[list[2]])
+                print(info[list[2]])
+                if words[list[2]] == "pass":
+                    driver.find_element_by_id(list[1]).send_keys(Keys.ENTER)
+                    print("Enter")
+            except:
+                pass
+        elif list[0] == "name":
+            try:
+                if "phone" in words[list[2]]:
+                    driver.find_element_by_name(list[1]).click()
+                driver.find_element_by_name(list[1]).send_keys(info[list[2]])
+                print(info[list[2]])
+                if words[list[2]] == "pass":
+                    driver.find_element_by_name(list[1]).send_keys(Keys.ENTER)
+                    print("Enter")
+            except:
+                pass
+        elif list[0] == "placeholder":
+            try:
+                if "phone" in words[list[2]]:
+                    driver.find_element_by_placeholder(list[1]).click()
+                driver.find_element_by_placeholder(list[1]).send_keys(info[list[2]])
+                print(info[list[2]])
+                if words[list[2]] == "pass":
+                    driver.find_element_by_placeholder(list[1]).send_keys(Keys.ENTER)
+                    print("Enter")
+            except:
+                pass
 
 def readFirstNames():
     global first_names
@@ -80,7 +155,7 @@ def generateRandomInfo():
     address = str(random.randint(100, 999)) + " " + random.choice(list(cities)) + " " + random.choice(roads)
     zip = random.randint(10000, 99999)
     global info
-    info = [first, last, full, email, user, month, day, year, age, country, state, city, address, number, zip, job, pwd]
+    info = [first, last, user, full, email, month, day, year, age, country, state, city, address, number, zip, job, pwd]
 
     for i in range(len(words)):
         word = words[i]
@@ -90,78 +165,10 @@ def generateRandomInfo():
 
 def attemptLogon():
     generateRandomInfo()
+    getInputs(login_page)
     driver = webdriver.Firefox()
     driver.get(login_page)
-    for word in words:
-        for a in word.split(","):
-            search(a, driver)
-
-def search(word, driver):
-    html = BeautifulSoup(urllib.request.urlopen(login_page), 'html.parser')
-
-    for i in html.findAll(['input', 'select']):
-        for att in attributes:
-            if word in str(i.get(att)).lower() and not driver.find_element_by_name(i.get("name")).get_attribute("value"):
-                if att == "id" and not driver.find_element_by_name(i.get("name")).get_attribute("value"):
-                    try:
-                        driver.find_element_by_id(i.get(att)).send_keys(info[wordpos[word]])
-                        print(info[wordpos[word]])
-                    except:
-                        pass
-                elif att == "name" and not driver.find_element_by_name(i.get("name")).get_attribute("value"):
-                    try:
-                        driver.find_element_by_name(
-                            i.get(att)).send_keys(info[wordpos[word]])
-                        print(info[wordpos[word]])
-                    except:
-                        pass
-                elif att == "placeholder" and not driver.find_element_by_name(i.get("name")).get_attribute("value"):
-                    try:
-                        driver.find_element_by_placeholder(
-                            i.get(att)).send_keys(info[wordpos[word]])
-                        print(info[wordpos[word]])
-                    except:
-                        pass
-                if word == words[-1]:
-                    try:
-                        driver.find_element_by_name(
-                            i.get("name")).send_keys(Keys.ENTER)
-                    except:
-                        pass
-            elif word in str(i.get(att)).lower() and i.name == 'select':
-                if att == "id" and not driver.find_element_by_name(i.get("name")).get_attribute("value"):
-                    try:
-                        select = Select(driver.find_element_by_id(i.get(att)))
-                        select.select_by_visible_text(str(info[wordpos[word]]))
-                        print(info[wordpos[word]])
-                    except:
-                        pass
-                elif att == "name" and not driver.find_element_by_name(i.get("name")).get_attribute("value"):
-                    try:
-                        select = Select(driver.find_element_by_name(i.get(att)))
-                        select.select_by_visible_text(str(info[wordpos[word]]))
-                        print(info[wordpos[word]])
-                    except:
-                        pass
-                elif att == "placeholder" and not driver.find_element_by_name(i.get("name")).get_attribute("value"):
-                    try:
-                        select = Select(
-                            driver.find_element_by_placeholder(i.get(att)))
-                        select.select_by_visible_text(str(info[wordpos[word]]))
-                        print(info[wordpos[word]])
-                    except:
-                        pass
-                if word == words[-1]:
-                    try:
-                        driver.find_element_by_name(
-                            i.get("name")).send_keys(Keys.ENTER)
-                    except:
-                        pass
-        if word == words[-1]:
-            try:
-                driver.find_element_by_name(i.get("name")).send_keys(Keys.ENTER)
-            except:
-                pass
+    search(driver)
 
 readFirstNames()
 readLastNames()
