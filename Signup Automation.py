@@ -22,7 +22,6 @@ select_list = []
 first_names = []
 last_names = []
 cities = set()
-states = set()
 
 file = open("users.csv", mode="w")
 
@@ -112,7 +111,7 @@ def readFirstNames():
         text = line.split(",")
         first_names.append(text[0])
 
-def readCitiesAndStates():
+def readCities():
     global cities
     input = open("cities.csv", "r")
     for line in input:
@@ -120,10 +119,6 @@ def readCitiesAndStates():
         if text[0] == "City":
             continue
         cities.add(text[0])
-        try:
-            states.add(text[2])
-        except:
-            pass
 
 def readLastNames():
     global last_names
@@ -149,6 +144,7 @@ def generateRandomInfo():
     country = "USA"
     job = "Computer"
     number = random.randint(1000000000, 9999999999)
+    states = ['Alabama', 'Wisconsin', 'Vermont', 'Texas', 'Indiana', 'Virginia', 'Colorado', 'North Dakota', 'Oklahoma', 'Delaware', 'Connecticut', 'Washington', 'Maryland', 'Florida', 'South Carolina', 'Mississippi', 'Oregon', 'Iowa', 'Minnesota', 'North Carolina', 'New York', 'New Hampshire', 'West Virginia', 'Maine', 'Massachusetts', 'Arizona', 'Rhode Island', 'Georgia', 'Nevada', 'Ohio', 'Kentucky', 'New Jersey', 'Montana', 'Idaho', 'Missouri', 'Arkansas', 'Michigan', 'Nebraska', 'South Dakota', 'Utah', 'Hawaii', 'Alaska', 'California', 'Louisiana', 'Pennsylvania', 'Illinois', 'Kansas', 'New Mexico', 'Tennessee', 'Wyoming']
     state = random.choice(list(states))
     city = random.choice(list(cities))
     roads = ["Street", "Road", "Lane", "Place"]
@@ -172,5 +168,5 @@ def attemptLogon():
 
 readFirstNames()
 readLastNames()
-readCitiesAndStates()
+readCities()
 attemptLogon()
