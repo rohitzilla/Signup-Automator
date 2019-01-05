@@ -15,7 +15,7 @@ import urllib
 
 login_page = "https://profile.oracle.com/myprofile/account/create-account.jspx"
 
-words = ["first", "last", "name,full", "mail", "user", "month", "day", "year", "age", "country", "state", "city", "phone,number", "zip,post", "job,company", "pass"]
+words = ["first", "last", "name,full", "mail", "user", "month", "day", "year", "age", "country", "state", "city", "address", "phone,number", "zip,post", "job,company", "pass"]
 wordpos = {}
 info = []
 attributes = ["id", "name", "placeholder", "text"]
@@ -64,7 +64,7 @@ def generateRandomInfo():
     first = str(random.choice(first_names))
     last = str(random.choice(last_names))
     full = first + " " + last
-    pwd = "".join([random.choice(charset) for i in range(10)])
+    pwd = "".join([random.choice(charset) for i in range(15)])
     user = first + last[0] + str(random.randint(10000, 100000))
     email = user + "@gmail.com"
     day = random.randint(1, 28)
@@ -76,9 +76,11 @@ def generateRandomInfo():
     number = random.randint(1000000000, 9999999999)
     state = random.choice(list(states))
     city = random.choice(list(cities))
+    roads = ["Street", "Road", "Lane", "Place"]
+    address = str(random.randint(100, 999)) + " " + random.choice(list(cities)) + " " + random.choice(roads)
     zip = random.randint(10000, 99999)
     global info
-    info = [first, last, full, email, user, month, day, year, age, country, state, city, number, zip, job, pwd]
+    info = [first, last, full, email, user, month, day, year, age, country, state, city, address, number, zip, job, pwd]
 
     for i in range(len(words)):
         word = words[i]
@@ -164,3 +166,4 @@ def search(word, driver):
 readFirstNames()
 readLastNames()
 readCitiesAndStates()
+attemptLogon()
